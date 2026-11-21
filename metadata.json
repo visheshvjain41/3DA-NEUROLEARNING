@@ -1,0 +1,6 @@
+{
+  "name": "3DA NeuroLearning",
+  "description": "Learn Your Way. Shine Your Way. Inclusive AI learning-support platform connecting students, parents, teachers, and counsellors.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
