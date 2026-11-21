@@ -11,8 +11,9 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
-import type { StudentRecord, SupportPlan } from '../../types/neuro';
+import type { CheckType, StudentRecord, SupportPlan } from '../../types/neuro';
 import { buildStructuredDemoSupportPlan } from '../../utils/demoAiFallbacks';
+import { CheckResultsSummary } from '../check/CheckResultsSummary';
 
 interface StudentDetailViewProps {
   student: StudentRecord;
@@ -20,7 +21,13 @@ interface StudentDetailViewProps {
   onBack: () => void;
 }
 
-export type DetailTab = 'overview' | 'activity' | 'timeline' | 'feedback' | 'support-plan';
+export type DetailTab =
+  | 'overview'
+  | 'activity'
+  | 'timeline'
+  | 'feedback'
+  | 'support-plan'
+  | 'check';
 
 export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
   student,
@@ -32,6 +39,10 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
     geminiConfigured,
     addTeacherObservation,
     updateSupportPlan,
+    setActiveStudentId,
+    setActiveRole,
+    setRequestedWorld,
+    setRoute,
   } = useAppData();
 
   const [activeTab, setActiveTab] = useState<DetailTab>(initialTab);
@@ -93,7 +104,7 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
       );
       setDraftPlan(demoPlan);
       updateSupportPlan(student.id, demoPlan);
-      setPlanSavedNotice('Generated & saved structured demo plan (Simulated Demo Mode).');
+      setPlanSavedNotice('Generated & saved structured support plan.');
       return;
     }
 
@@ -168,7 +179,7 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
     setDraftPlan(demoPlan);
     updateSupportPlan(student.id, demoPlan);
     setPlanError('');
-    setPlanSavedNotice('Generated & saved structured demo plan.');
+    setPlanSavedNotice('Generated & saved structured support plan.');
   };
 
   const handleSavePlan = (markReviewed?: boolean) => {
@@ -192,7 +203,7 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
 
   const handleExportText = () => {
     const lines = [
-      `3DA NeuroLearning — Monthly Educational Support Plan (Demo Data)`,
+      `3DA NeuroLearning — Monthly Educational Support Plan`,
       `Student: ${student.name} (${student.id}) · ${student.className}`,
       `Support Focus: ${student.supportProfile}`,
       `Review Status: ${draftPlan.reviewStatus} · Updated: ${draftPlan.lastUpdated}`,
@@ -265,10 +276,6 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to School Overview
         </button>
-
-        <span className="text-xs text-slate-500">
-          Fictional demo student record · Educational support only
-        </span>
       </div>
 
       {/* Student Header Card */}
@@ -295,9 +302,9 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
           <div className="rounded-xl border border-slate-200 bg-[#FAF9F6] px-4 py-3 text-xs shrink-0">
             {student.followUpSuggested ? (
               <div className="text-amber-800">
-                <p className="font-semibold">Gentle check-in suggested</p>
+                <p className="font-semibold">Check-in suggested</p>
                 <p className="mt-0.5 text-slate-600 max-w-xs">
-                  {student.followUpReason ?? 'Based on recent demo inactivity.'}
+                  {student.followUpReason ?? 'Based on recent activity patterns.'}
                 </p>
               </div>
             ) : (
@@ -324,6 +331,7 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
               { id: 'timeline', label: `Timeline (${studentTimeline.length})` },
               { id: 'feedback', label: 'Feedback & Observations' },
               { id: 'support-plan', label: 'Support Plan' },
+              { id: 'check', label: "Let's Check" },
             ] as const
           ).map((tab) => (
             <button
@@ -412,7 +420,7 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
           </div>
           {studentActivities.length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-500">
-              No activities logged for this demo student yet.
+              No activities logged for this student yet.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -650,7 +658,7 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
                 )}
                 {geminiConfigured
                   ? 'Generate / Regenerate with Gemini'
-                  : 'Generate Demo Support Plan'}
+                  : 'Generate Support Plan'}
               </button>
               <button
                 type="button"
@@ -705,7 +713,7 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
                 className="inline-flex items-center gap-1.5 rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 hover:bg-rose-100 cursor-pointer shrink-0"
               >
                 <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-                Use Offline Demo Generator
+                Use Local Support Generator
               </button>
             </div>
           )}
@@ -833,6 +841,19 @@ export const StudentDetailView: React.FC<StudentDetailViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* TAB 6: LET'S CHECK RESULTS (School view) */}
+      {activeTab === 'check' && (
+        <CheckResultsSummary
+          student={student}
+          onNextStepWorld={(world: CheckType) => {
+            setActiveStudentId(student.id);
+            setRequestedWorld(world);
+            setActiveRole('student');
+            setRoute('portal');
+          }}
+        />
       )}
     </div>
   );

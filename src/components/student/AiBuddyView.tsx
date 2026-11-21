@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { AlertCircle, Loader2, RefreshCw, RotateCcw, Send } from 'lucide-react';
+import { motion } from 'motion/react';
+import { AlertCircle, Loader2, RefreshCw, RotateCcw, Send, Volume2, VolumeX } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { buildSimulatedBuddyReply } from '../../utils/demoAiFallbacks';
+import { playSoftTap } from '../../utils/gentleAudio';
 
 interface BuddyMessage {
   id: string;
@@ -26,6 +28,9 @@ export const AiBuddyView: React.FC = () => {
     geminiConfigured,
     accessibilityPrefs,
     setAccessibilityPrefs,
+    soundEnabled,
+    setSoundEnabled,
+    prefersReducedMotion,
   } = useAppData();
 
   const firstName = activeStudent.name.split(' ')[0];
@@ -34,8 +39,8 @@ export const AiBuddyView: React.FC = () => {
     {
       id: 'lumi-init',
       role: 'buddy',
-      text: `Hi ${firstName}! I'm Lumi, your study buddy. Tell me what you're working on today—we can break it into small, calm steps, find a gentle hint, or take a 60-second reset together.`,
-      sourceLabel: geminiConfigured ? 'Gemini AI Buddy' : 'Simulated Demo Mode',
+      text: `Hi ${firstName}! I'm Lumi, your study buddy. Tell me what you're working on today—we can break it into small, steady steps, find a helpful hint, or take a 60-second reset together.`,
+      sourceLabel: geminiConfigured ? 'Gemini AI Buddy' : 'Study Buddy',
     },
   ]);
   const [input, setInput] = useState('');
@@ -46,6 +51,7 @@ export const AiBuddyView: React.FC = () => {
     const trimmed = textToSend.trim();
     if (!trimmed || loading) return;
 
+    playSoftTap(soundEnabled);
     setErrorMsg('');
     const userMsg: BuddyMessage = {
       id: `u-${Date.now()}`,
@@ -68,7 +74,7 @@ export const AiBuddyView: React.FC = () => {
           id: `b-${Date.now()}`,
           role: 'buddy',
           text: reply,
-          sourceLabel: 'Simulated Demo Mode',
+          sourceLabel: 'Study Buddy',
         },
       ]);
       return;
@@ -141,20 +147,21 @@ export const AiBuddyView: React.FC = () => {
         id: `b-${Date.now()}`,
         role: 'buddy',
         text: reply,
-        sourceLabel: 'Offline Demo Fallback',
+        sourceLabel: 'Local Buddy Reply',
       },
     ]);
     setErrorMsg('');
   };
 
   const handleResetChat = () => {
+    playSoftTap(soundEnabled);
     setErrorMsg('');
     setMessages([
       {
         id: 'lumi-reset',
         role: 'buddy',
         text: `Fresh start, ${firstName}! Pick one of the quick buttons below or ask me anything in your own words.`,
-        sourceLabel: geminiConfigured ? 'Gemini AI Buddy' : 'Simulated Demo Mode',
+        sourceLabel: geminiConfigured ? 'Gemini AI Buddy' : 'Study Buddy',
       },
     ]);
   };
@@ -162,22 +169,32 @@ export const AiBuddyView: React.FC = () => {
   return (
     <div className="space-y-5">
       {/* Lumi Header Card */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="rounded-3xl border-2 border-purple-200 bg-gradient-to-br from-[#FFFDF7] via-[#F3E8FF]/55 to-[#E0F2FE]/55 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <img
+          <motion.img
             src="/src/assets/images/buddy_avatar_lumi_1795274053620.jpg"
             alt="Lumi the friendly study owl"
             referrerPolicy="no-referrer"
-            className="h-16 w-16 rounded-xl border border-slate-200 object-cover shrink-0"
+            animate={
+              prefersReducedMotion
+                ? { y: 0, rotate: 0 }
+                : { y: [0, -4, 0], rotate: [-1.5, 1.5, -1.5] }
+            }
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { duration: 3.6, repeat: Infinity, ease: 'easeInOut' }
+            }
+            className="h-16 w-16 rounded-2xl border-2 border-amber-300 bg-[#FFFDF7] object-cover shrink-0"
           />
           <div>
-            <p className="text-xs font-semibold text-indigo-700">
-              Lumi · {geminiConfigured ? 'Gemini AI Connected' : 'Simulated Demo Mode'}
+            <p className="text-xs font-bold text-purple-800">
+              Lumi · {geminiConfigured ? 'Gemini AI Connected' : 'Study Buddy Ready'}
             </p>
-            <h2 className="font-display text-xl font-bold text-slate-900">
-              Your Calm Study Buddy
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900">
+              Your Study Buddy
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs sm:text-sm text-slate-600">
               Educational helper only · Hints before answers · No pressure
             </p>
           </div>
@@ -186,26 +203,47 @@ export const AiBuddyView: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
+            aria-pressed={soundEnabled}
+            onClick={() => {
+              const next = !soundEnabled;
+              setSoundEnabled(next);
+              if (next) playSoftTap(true);
+            }}
+            className={`inline-flex items-center gap-1.5 rounded-2xl border-2 px-3 py-2 text-xs font-bold cursor-pointer ${
+              soundEnabled
+                ? 'border-emerald-400 bg-[#D1FAE5] text-emerald-950'
+                : 'border-slate-300 bg-white text-slate-700'
+            }`}
+          >
+            {soundEnabled ? (
+              <Volume2 className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <VolumeX className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+            {soundEnabled ? 'Sound On' : 'Sound Off'}
+          </button>
+          <button
+            type="button"
             onClick={() =>
               setAccessibilityPrefs((p) => ({
                 ...p,
                 readingFriendly: !p.readingFriendly,
               }))
             }
-            className={`rounded-lg border px-3 py-2 text-xs font-semibold cursor-pointer ${
+            className={`rounded-2xl border-2 px-3 py-2 text-xs font-bold cursor-pointer ${
               accessibilityPrefs.readingFriendly
-                ? 'border-sky-600 bg-sky-50 text-sky-900'
-                : 'border-slate-200 bg-[#FAF9F6] text-slate-700'
+                ? 'border-sky-600 bg-[#E0F2FE] text-sky-950'
+                : 'border-slate-200 bg-white text-slate-700'
             }`}
           >
             {accessibilityPrefs.readingFriendly
-              ? 'Reading-Friendly: On'
-              : 'Reading-Friendly Text'}
+              ? 'Spacious Text: On'
+              : 'Spacious Text'}
           </button>
           <button
             type="button"
             onClick={handleResetChat}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-2xl border-2 border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
             Reset Chat
@@ -216,20 +254,22 @@ export const AiBuddyView: React.FC = () => {
       {/* Quick Prompts */}
       <div className="flex flex-wrap gap-2">
         {BUDDY_QUICK_PROMPTS.map((q) => (
-          <button
+          <motion.button
             key={q}
             type="button"
             disabled={loading}
+            whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
             onClick={() => sendMessage(q)}
-            className="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:border-indigo-300 hover:bg-indigo-50/70 transition-colors cursor-pointer"
+            className="rounded-2xl border-2 border-sky-200 bg-[#FFFDF7] px-4 py-2 text-xs sm:text-sm font-bold text-slate-800 hover:border-indigo-400 hover:bg-[#E0F2FE]/60 transition-colors cursor-pointer"
           >
             {q}
-          </button>
+          </motion.button>
         ))}
       </div>
 
       {/* Chat Area */}
-      <div className="rounded-2xl border border-slate-200 bg-white flex flex-col min-h-[400px] max-h-[540px]">
+      <div className="rounded-3xl border-2 border-sky-200 bg-white flex flex-col min-h-[400px] max-h-[540px]">
         <div
           className={`flex-1 overflow-y-auto p-5 space-y-4 ${
             accessibilityPrefs.readingFriendly ? 'reading-friendly text-base' : 'text-sm'
@@ -261,7 +301,7 @@ export const AiBuddyView: React.FC = () => {
             <div className="flex justify-start">
               <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-[#FAF9F6] px-4 py-3 text-xs text-slate-600">
                 <Loader2 className="h-4 w-4 animate-spin text-indigo-600" aria-hidden="true" />
-                Lumi is thinking of a gentle next step...
+                Lumi is thinking of a helpful next step...
               </div>
             </div>
           )}
@@ -281,7 +321,7 @@ export const AiBuddyView: React.FC = () => {
                 className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 font-semibold hover:bg-rose-100 cursor-pointer shrink-0"
               >
                 <RefreshCw className="h-3 w-3" aria-hidden="true" />
-                Use Demo Buddy Reply
+                Use Local Buddy Reply
               </button>
             </div>
           )}

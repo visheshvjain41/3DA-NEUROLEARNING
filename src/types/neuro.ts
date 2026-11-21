@@ -26,7 +26,7 @@ export interface DailyActivity {
   durationMinutes: number;
   status: ActivityStatus;
   studentFeedback?: string;
-  feelingTag?: 'Calm' | 'Curious' | 'Proud' | 'Needed a hint';
+  feelingTag?: 'Steady' | 'Curious' | 'Proud' | 'Needed a hint';
 }
 
 export interface TimelineEvent {
@@ -131,3 +131,100 @@ export interface StudentAccessibilityPrefs {
   reducedMotion: boolean;
   paperTint: 'ivory' | 'sage' | 'sky';
 }
+
+export type CheckType = 'reading' | 'number' | 'writing' | 'focus';
+
+export type CheckStatus = 'Not started' | 'In progress' | 'Done';
+
+export type TrafficBand = 'Green' | 'Amber' | 'Red';
+
+export interface FocusQuestionnaireResult {
+  ratings: number[]; // length 18: 0..8 inattention, 9..17 hyperactivity/impulsivity
+  inattentionAvg: number;
+  hyperactivityAvg: number;
+  inattentionBand: TrafficBand;
+  hyperactivityBand: TrafficBand;
+  respondentRole: 'parent' | 'school';
+  completedAt: string;
+}
+
+export interface StarMoonGameResult {
+  missedStars: number;
+  wrongMoonTaps: number;
+  reactionTimeSdMs: number;
+  starsHit: number;
+  totalStars: number;
+  totalMoons: number;
+  completedAt: string;
+}
+
+export interface FocusCheckResult {
+  questionnaire?: FocusQuestionnaireResult;
+  starMoonGame?: StarMoonGameResult;
+}
+
+export type NumberTaskId = 'dots' | 'numbers' | 'sums';
+
+export interface NumberTaskMetrics {
+  taskId: NumberTaskId;
+  title: string;
+  accuracyPct: number;
+  medianRtMs: number;
+  correctCount: number;
+  totalTrials: number;
+  band: TrafficBand;
+  completedAt: string;
+}
+
+export interface NumberCheckResult {
+  dots?: NumberTaskMetrics;
+  numbers?: NumberTaskMetrics;
+  sums?: NumberTaskMetrics;
+}
+
+export type ReadingLanguage = 'en' | 'hi' | 'kn';
+
+export type ReadingGameId = 'sound' | 'letter-sound' | 'nonword' | 'spelling' | 'memory';
+
+export interface ReadingGameMetrics {
+  gameId: ReadingGameId;
+  title: string;
+  language: ReadingLanguage;
+  accuracyPct: number;
+  medianRtMs: number;
+  correctCount: number;
+  totalTrials: number;
+  errorTypes: string[];
+  band: TrafficBand;
+  completedAt: string;
+}
+
+export interface ReadingCheckResult {
+  language: ReadingLanguage;
+  sound?: ReadingGameMetrics;
+  'letter-sound'?: ReadingGameMetrics;
+  nonword?: ReadingGameMetrics;
+  spelling?: ReadingGameMetrics;
+  memory?: ReadingGameMetrics;
+}
+
+export type WritingTaskId = 'sentence' | 'digits' | 'trace';
+
+export interface WritingTaskDrawing {
+  taskId: WritingTaskId;
+  title: string;
+  imageDataUrl: string;
+  penLifts: number;
+  avgInterStrokeMs: number;
+  speedVariationPct: number;
+  completedAt: string;
+}
+
+export interface WritingCheckResult {
+  penLifts: number;
+  avgInterStrokeMs: number;
+  speedVariationPct: number;
+  drawings: WritingTaskDrawing[];
+  completedAt: string;
+}
+

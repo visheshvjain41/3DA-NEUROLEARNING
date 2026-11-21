@@ -9,10 +9,12 @@ import {
   RotateCcw,
   Search,
   Settings,
+  Sparkles,
   Users,
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import type { SupportProfileType } from '../../types/neuro';
+import { CheckHub } from '../check/CheckHub';
 import { PortalShell, type NavItem } from '../PortalShell';
 import { SchoolDashboardCharts } from './SchoolDashboardCharts';
 import { StudentDetailView, type DetailTab } from './StudentDetailView';
@@ -23,7 +25,8 @@ type SchoolSection =
   | 'timeline'
   | 'feedback'
   | 'support-plans'
-  | 'settings';
+  | 'settings'
+  | 'check';
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4 shrink-0" /> },
@@ -32,6 +35,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'feedback', label: 'Feedback', icon: <MessageSquare className="h-4 w-4 shrink-0" /> },
   { id: 'support-plans', label: 'Support Plans', icon: <ClipboardCheck className="h-4 w-4 shrink-0" /> },
   { id: 'settings', label: 'Settings', icon: <Settings className="h-4 w-4 shrink-0" /> },
+  { id: 'check', label: "Let's Check", icon: <Sparkles className="h-4 w-4 shrink-0 text-amber-600" /> },
 ];
 
 export const SchoolPortal: React.FC = () => {
@@ -108,28 +112,28 @@ export const SchoolPortal: React.FC = () => {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
                 <div>
-                  <p className="text-xs font-medium text-indigo-700">
-                    {state.schoolMeta.schoolName} · Illustrative Demo Data
+                  <p className="text-xs font-semibold text-sky-700">
+                    {state.schoolMeta.schoolName} · Workspace Overview
                   </p>
-                  <h1 className="font-display text-2xl font-bold tracking-tight text-slate-900">
+                  <h1 className="font-display text-2xl font-bold tracking-tight text-[#0B1D3A]">
                     School Inclusion Overview
                   </h1>
                 </div>
                 <p className="text-xs text-slate-500">
-                  {state.schoolMeta.simulatedTeachers} simulated teachers ·{' '}
-                  {state.schoolMeta.simulatedCounsellors} simulated counsellors
+                  {state.schoolMeta.simulatedTeachers} teachers ·{' '}
+                  {state.schoolMeta.simulatedCounsellors} counsellors
                 </p>
               </div>
 
               {/* 4 KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <p className="text-xs font-medium text-slate-500">Total Demo Students</p>
-                  <p className="mt-2 font-mono text-3xl font-semibold text-slate-900 tabular-nums">
+                  <p className="text-xs font-medium text-slate-500">Cohort Students</p>
+                  <p className="mt-2 font-mono text-3xl font-semibold text-[#0B1D3A] tabular-nums">
                     {state.schoolMeta.totalSimulatedStudents}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
-                    12 detailed interactive profiles
+                    {state.students.length} detailed student profiles
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
@@ -138,16 +142,16 @@ export const SchoolPortal: React.FC = () => {
                     {state.schoolMeta.studentsWithSupportProfiles}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
-                    Simulated school-wide cohort
+                    School-wide cohort
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <p className="text-xs font-medium text-slate-500">Active Demo Support Plans</p>
+                  <p className="text-xs font-medium text-slate-500">Active Support Plans</p>
                   <p className="mt-2 font-mono text-3xl font-semibold text-teal-700 tabular-nums">
                     {activeSupportPlansCount}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
-                    {state.students.filter((s) => s.supportPlan.reviewStatus === 'AI suggestion — pending educator review').length} interactive pending review
+                    {state.students.filter((s) => s.supportPlan.reviewStatus === 'AI suggestion — pending educator review').length} pending review
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
@@ -156,7 +160,7 @@ export const SchoolPortal: React.FC = () => {
                     {completedActivitiesCount}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
-                    Live across 12 interactive records
+                    Across {state.students.length} student records
                   </p>
                 </div>
               </div>
@@ -171,11 +175,11 @@ export const SchoolPortal: React.FC = () => {
               <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
                 <div className="p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div>
-                    <h2 className="font-display text-lg font-semibold text-slate-900">
-                      Interactive Demo Student Directory
+                    <h2 className="font-display text-lg font-semibold text-[#0B1D3A]">
+                      Student Directory
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Follow-up cues reflect demo inactivity or observations—never clinical diagnosis.
+                      Follow-up cues reflect recent activity patterns and educator observations.
                     </p>
                   </div>
 
@@ -226,7 +230,7 @@ export const SchoolPortal: React.FC = () => {
 
                 {filteredStudents.length === 0 ? (
                   <div className="p-8 text-center">
-                    <p className="text-sm text-slate-600">No demo students match your filters.</p>
+                    <p className="text-sm text-slate-600">No students match your filters.</p>
                     <button
                       type="button"
                       onClick={() => {
@@ -317,11 +321,11 @@ export const SchoolPortal: React.FC = () => {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="font-display text-2xl font-bold text-slate-900">
-                    All Interactive Demo Students ({filteredStudents.length})
+                  <h1 className="font-display text-2xl font-bold text-[#0B1D3A]">
+                    Student Directory ({filteredStudents.length})
                   </h1>
                   <p className="text-sm text-slate-600">
-                    12 fictional student records linked across School, Parent, and Student views.
+                    Student records synchronized across School, Parent, and Student views.
                   </p>
                 </div>
                 <input
@@ -356,7 +360,7 @@ export const SchoolPortal: React.FC = () => {
                       </p>
                       {st.followUpSuggested && (
                         <p className="mt-2 text-xs font-medium text-amber-700">
-                          Gentle check-in suggested
+                          Check-in suggested
                         </p>
                       )}
                     </div>
@@ -550,32 +554,32 @@ export const SchoolPortal: React.FC = () => {
           {section === 'settings' && (
             <div className="max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 space-y-6">
               <div>
-                <h1 className="font-display text-2xl font-bold text-slate-900">
-                  Demo School Settings
+                <h1 className="font-display text-2xl font-bold text-[#0B1D3A]">
+                  School Workspace Settings
                 </h1>
                 <p className="mt-1 text-sm text-slate-600">
-                  {state.schoolMeta.schoolName} — Fictional hackathon demonstration campus.
+                  {state.schoolMeta.schoolName} — Screening support tool. Results are not a medical diagnosis.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="rounded-xl border border-slate-200 bg-[#FAF9F6] p-4">
-                  <p className="text-xs text-slate-500">Simulated Students</p>
-                  <p className="mt-1 font-mono text-xl font-semibold text-slate-900 tabular-nums">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs text-slate-500">Enrolled Students</p>
+                  <p className="mt-1 font-mono text-xl font-semibold text-[#0B1D3A] tabular-nums">
                     {state.schoolMeta.totalSimulatedStudents}
                   </p>
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-[#FAF9F6] p-4">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                   <p className="text-xs text-slate-500">Educator Roster</p>
-                  <p className="mt-1 font-mono text-xl font-semibold text-slate-900 tabular-nums">
+                  <p className="mt-1 font-mono text-xl font-semibold text-[#0B1D3A] tabular-nums">
                     {state.schoolMeta.simulatedTeachers} Teachers · {state.schoolMeta.simulatedCounsellors} Counsellors
                   </p>
                 </div>
               </div>
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">Reset Demo Data</p>
+                  <p className="text-sm font-semibold text-slate-900">Manage Data</p>
                   <p className="text-xs text-slate-500">
-                    Restore all 12 students, activities, observations, and support plans to their initial seed state.
+                    Clear session check results and restore default workspace records, activities, and support plans.
                   </p>
                 </div>
                 <button
@@ -584,11 +588,14 @@ export const SchoolPortal: React.FC = () => {
                   className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer shrink-0"
                 >
                   <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                  Reset Demo Data
+                  Manage Data
                 </button>
               </div>
             </div>
           )}
+
+          {/* SECTION: LET'S CHECK */}
+          {section === 'check' && <CheckHub />}
         </>
       )}
     </PortalShell>

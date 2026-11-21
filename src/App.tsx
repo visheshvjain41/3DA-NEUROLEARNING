@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { AppDataProvider, useAppData } from './context/AppDataContext';
+import { CheckHub } from './components/check/CheckHub';
 import { DemoLoginView } from './components/DemoLoginView';
 import { LandingPage } from './components/LandingPage';
 import { ParentPortal } from './components/parent/ParentPortal';
@@ -16,6 +17,10 @@ const AppRouter: React.FC = () => {
 
   if (route === 'landing') {
     return <LandingPage />;
+  }
+
+  if (route === 'check') {
+    return <CheckHub standalone />;
   }
 
   if (route === 'login') {

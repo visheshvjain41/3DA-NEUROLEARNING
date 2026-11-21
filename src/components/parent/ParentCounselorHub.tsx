@@ -19,7 +19,7 @@ interface ParentCounselorHubProps {
 
 const QUICK_PROMPTS = [
   "Explain this month's learning activity in plain words",
-  'Suggest a calm 20-minute homework routine for home',
+  'Suggest a structured 20-minute homework routine for home',
   'What questions can I ask our school counsellor?',
   'How can we celebrate effort without pressure?',
 ];
@@ -35,8 +35,8 @@ export const ParentCounselorHub: React.FC<ParentCounselorHubProps> = ({
     {
       id: 'welcome',
       role: 'assistant',
-      text: `Hello ${student.parentAccountName.split('(')[0].trim()}! I can help explain ${student.name}'s recent demo learning activities, suggest calm home routines, and prepare helpful questions for ${student.counsellor} or ${student.teacher}. Ask me anything below.`,
-      sourceLabel: geminiConfigured ? 'Gemini Educational Assistant' : 'Simulated Demo Assistant',
+      text: `Hello ${student.parentAccountName.split('(')[0].trim()}! I can help explain ${student.name}'s recent learning activities, suggest structured home routines, and prepare helpful questions for ${student.counsellor} or ${student.teacher}. Ask me anything below.`,
+      sourceLabel: geminiConfigured ? 'Gemini Educational Assistant' : 'Educational Assistant',
     },
   ]);
   const [input, setInput] = useState('');
@@ -70,7 +70,7 @@ export const ParentCounselorHub: React.FC<ParentCounselorHubProps> = ({
           id: `a-${Date.now()}`,
           role: 'assistant',
           text: simReply,
-          sourceLabel: 'Simulated Demo Mode',
+          sourceLabel: 'Educational Assistant',
         },
       ]);
       return;
@@ -143,7 +143,7 @@ export const ParentCounselorHub: React.FC<ParentCounselorHubProps> = ({
         id: `a-${Date.now()}`,
         role: 'assistant',
         text: simReply,
-        sourceLabel: 'Offline Demo Fallback',
+        sourceLabel: 'Local Support Fallback',
       },
     ]);
     setErrorMsg('');
@@ -156,7 +156,7 @@ export const ParentCounselorHub: React.FC<ParentCounselorHubProps> = ({
         id: 'welcome-reset',
         role: 'assistant',
         text: `Chat cleared. Ask me about ${student.name}'s recent activities, home routines, or questions for ${student.counsellor}.`,
-        sourceLabel: geminiConfigured ? 'Gemini Educational Assistant' : 'Simulated Demo Assistant',
+        sourceLabel: geminiConfigured ? 'Gemini Educational Assistant' : 'Educational Assistant',
       },
     ]);
   };
@@ -169,14 +169,14 @@ export const ParentCounselorHub: React.FC<ParentCounselorHubProps> = ({
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             <span>
               AI &amp; Counselor Hub ·{' '}
-              {geminiConfigured ? 'Gemini AI Connected' : 'Simulated Demo Mode'}
+              {geminiConfigured ? 'Gemini AI Connected' : 'Local Assistant Ready'}
             </span>
           </div>
-          <h1 className="font-display text-2xl font-bold text-slate-900 mt-1">
+          <h1 className="font-display text-2xl font-bold text-[#0B1D3A] mt-1">
             Parent Guidance &amp; School Prep
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Educational support ideas only—never clinical diagnosis or medical advice.
+            Screening support tool. Results and summaries are not a medical diagnosis.
           </p>
         </div>
 
@@ -254,7 +254,7 @@ export const ParentCounselorHub: React.FC<ParentCounselorHubProps> = ({
                 className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 font-semibold hover:bg-rose-100 cursor-pointer shrink-0"
               >
                 <RefreshCw className="h-3 w-3" aria-hidden="true" />
-                Use Demo Response
+                Use Local Support Response
               </button>
             </div>
           )}

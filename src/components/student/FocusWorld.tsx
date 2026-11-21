@@ -68,7 +68,7 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
     setMicroSteps([
       { id: `${Date.now()}-1`, text: `Clear desk space for "${t}" (30 seconds)`, done: false },
       { id: `${Date.now()}-2`, text: 'Look at only the very first small piece', done: false },
-      { id: `${Date.now()}-3`, text: 'Work gently for 3 minutes without checking the clock', done: false },
+      { id: `${Date.now()}-3`, text: 'Work steadily for 3 minutes without checking the clock', done: false },
       { id: `${Date.now()}-4`, text: 'Pause, stretch arms, and mark this piece done', done: false },
     ]);
   };
@@ -93,7 +93,7 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
 
   const breathPhase =
     resetSeconds % 10 >= 6
-      ? 'Breathe in gently (4s)'
+      ? 'Breathe in slowly (4s)'
       : resetSeconds % 10 >= 4
         ? 'Hold softly (2s)'
         : 'Breathe out slowly (4s)';
@@ -159,8 +159,8 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
       activityTitle: title,
       durationMinutes: duration,
       status: 'Completed',
-      studentFeedback: 'Practiced calm focus and step-by-step pacing.',
-      feelingTag: 'Calm',
+      studentFeedback: 'Practiced steady focus and step-by-step pacing.',
+      feelingTag: 'Steady',
       achievementTitle,
       achievementDescription: achievementTitle
         ? `Completed ${title} in Focus World.`
@@ -181,7 +181,7 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
               Focus World · ADHD Support
             </h2>
             <p className="text-xs text-slate-500">
-              Educational focus tools &amp; calm resets—never clinical assessment or pressure.
+              Educational focus tools &amp; breathing resets—never a test or pressure.
             </p>
           </div>
         </div>
@@ -192,11 +192,11 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
         <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-5">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold text-slate-900">
-              1. Gentle Focus Timer
+              1. Visual Focus Timer
             </h3>
             <div className="flex gap-1.5">
               {[
-                { label: '30s Demo', sec: 30 },
+                { label: '30s Quick', sec: 30 },
                 { label: '5m', sec: 300 },
                 { label: '10m', sec: 600 },
                 { label: '15m', sec: 900 },
@@ -278,9 +278,9 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
                 type="button"
                 onClick={() =>
                   handleLogFocusActivity(
-                    'Focus Timer: Calm Sprint',
+                    'Focus Timer: Steady Sprint',
                     Math.max(1, Math.round(presetSeconds / 60)),
-                    'Calm Sprint Starter'
+                    'Steady Sprint Starter'
                   )
                 }
                 className="inline-flex items-center gap-1 rounded-lg bg-teal-600 px-3 py-2 text-xs font-semibold text-white hover:bg-teal-700 cursor-pointer"
@@ -357,7 +357,7 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
             <div className="flex items-center gap-2">
               <Wind className="h-4 w-4 text-teal-700" aria-hidden="true" />
               <h3 className="font-display text-lg font-semibold text-slate-900">
-                3. 60-Second Calm Reset
+                3. 60-Second Reset
               </h3>
             </div>
             <span className="font-mono text-xs font-semibold text-slate-600 tabular-nums">
@@ -371,7 +371,7 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
                 Reduced-Motion Grounding Guide (Static)
               </p>
               <p className="text-xs leading-relaxed">
-                Notice 3 calm things around your desk · Unclench your shoulders · Take 3 slow
+                Notice 3 steady things around your desk · Unclench your shoulders · Take 3 slow
                 breaths at your own pace.
               </p>
             </div>
@@ -415,10 +415,10 @@ export const FocusWorld: React.FC<FocusWorldProps> = ({ onActivityLogged }) => {
             </div>
             <button
               type="button"
-              onClick={() => handleLogFocusActivity('60-Second Calm Reset', 2)}
+              onClick={() => handleLogFocusActivity('60-Second Reset', 2)}
               className="text-xs font-semibold text-teal-700 hover:underline cursor-pointer"
             >
-              Log Calm Pause
+              Log Reset Pause
             </button>
           </div>
         </div>

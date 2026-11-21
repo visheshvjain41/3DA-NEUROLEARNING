@@ -14,7 +14,7 @@ const PASSAGE_SENTENCES = [
   'Every morning, Asha measured the sea breeze using three colored ribbon flags.',
   'When the teal ribbon fluttered steadily, her paper kite glided smoothly into the sky.',
   'She wrote down each gust in her notebook using simple sketches instead of long paragraphs.',
-  'By afternoon, the whole neighbourhood watched the bright kite trace gentle arcs above the bay.',
+  'By afternoon, the whole neighbourhood watched the bright kite trace smooth arcs above the bay.',
 ];
 
 const SOUND_CHALLENGES = [
@@ -30,7 +30,7 @@ const SOUND_CHALLENGES = [
     word: 'wonderful',
     chunks: ['won', 'der', 'ful'],
     hint: 'Break it into 3 parts: won · der · ful.',
-    rhymePrompt: 'Which word starts with the same gentle sound blend as "steady"?',
+    rhymePrompt: 'Which word starts with the same starting sound blend as "steady"?',
     options: ['star', 'cloud', 'breeze'],
     answer: 'star',
   },
@@ -130,9 +130,9 @@ export const ReadingWorld: React.FC<ReadingWorldProps> = ({ onActivityLogged }) 
       status: 'Completed',
       studentFeedback:
         reflection.trim() || 'Practiced read-along with comfortable spacing and highlighting.',
-      feelingTag: 'Calm',
+      feelingTag: 'Steady',
       achievementTitle: 'Story Explorer',
-      achievementDescription: 'Completed a calm Read-Along Studio session at your own pace.',
+      achievementDescription: 'Completed a Read-Along Studio session at your own pace.',
     });
     setReflection('');
     onActivityLogged('Read-Along session saved to your progress, Parent view, and School timeline!');
@@ -271,7 +271,7 @@ export const ReadingWorld: React.FC<ReadingWorldProps> = ({ onActivityLogged }) 
               </div>
             </div>
 
-            {/* Gentle Comprehension Check */}
+            {/* Story Comprehension Check */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
               <h3 className="font-display text-base font-semibold text-slate-900">
                 Quick Story Check (No Grading!)
@@ -376,7 +376,7 @@ export const ReadingWorld: React.FC<ReadingWorldProps> = ({ onActivityLogged }) 
                   [
                     { id: 'ivory', label: 'Warm Ivory' },
                     { id: 'sage', label: 'Soft Sage' },
-                    { id: 'sky', label: 'Calm Sky' },
+                    { id: 'sky', label: 'Soft Sky' },
                   ] as const
                 ).map((t) => (
                   <button

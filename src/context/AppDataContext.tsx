@@ -3,19 +3,36 @@ import { createInitialDemoState } from '../data/seedData';
 import type {
   ActivityStatus,
   AppDemoState,
+  CheckStatus,
+  CheckType,
   DailyActivity,
+  FocusCheckResult,
+  FocusQuestionnaireResult,
   LearningModule,
+  NumberCheckResult,
+  NumberTaskMetrics,
+  ReadingCheckResult,
+  ReadingGameMetrics,
   SavedWritingArtifact,
+  StarMoonGameResult,
   StudentAccessibilityPrefs,
   StudentRecord,
   SupportPlan,
   TeacherObservation,
   UserRole,
+  WritingCheckResult,
 } from '../types/neuro';
 
-const STORAGE_KEY = 'neurolearning_3da_demo_v1';
+const STORAGE_KEY = 'neurolearning_3da_workspace_v1';
 
-export type AppRoute = 'landing' | 'login' | 'portal';
+export type AppRoute = 'landing' | 'login' | 'portal' | 'check';
+
+const DEFAULT_CHECK_MAP: Record<CheckType, CheckStatus> = {
+  reading: 'Not started',
+  number: 'Not started',
+  writing: 'Not started',
+  focus: 'Not started',
+};
 
 interface AppDataContextValue {
   state: AppDemoState;
@@ -51,6 +68,26 @@ interface AppDataContextValue {
   updateSupportPlan: (studentId: string, plan: SupportPlan) => void;
   saveWritingArtifact: (studentId: string, artifact: Omit<SavedWritingArtifact, 'id' | 'studentId' | 'createdAt'>) => void;
   resetDemoData: () => void;
+  checkProgress: Record<string, Record<CheckType, CheckStatus>>;
+  getStudentChecks: (studentId: string) => Record<CheckType, CheckStatus>;
+  updateCheckStatus: (studentId: string, checkType: CheckType, status: CheckStatus) => void;
+  focusCheckResults: Record<string, FocusCheckResult>;
+  numberCheckResults: Record<string, NumberCheckResult>;
+  readingCheckResults: Record<string, ReadingCheckResult>;
+  writingCheckResults: Record<string, WritingCheckResult>;
+  saveFocusQuestionnaire: (studentId: string, result: FocusQuestionnaireResult) => void;
+  saveStarMoonResult: (studentId: string, result: StarMoonGameResult) => void;
+  saveNumberTaskResult: (studentId: string, task: NumberTaskMetrics) => void;
+  saveReadingGameResult: (studentId: string, game: ReadingGameMetrics) => void;
+  saveWritingCheckResult: (studentId: string, result: WritingCheckResult) => void;
+  clearStudentCheckData: (studentId: string) => void;
+  consentAccepted: boolean;
+  setConsentAccepted: React.Dispatch<React.SetStateAction<boolean>>;
+  soundEnabled: boolean;
+  setSoundEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  requestedWorld: CheckType | null;
+  setRequestedWorld: React.Dispatch<React.SetStateAction<CheckType | null>>;
+  prefersReducedMotion: boolean;
 }
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
@@ -72,15 +109,45 @@ function loadPersistedState(): AppDemoState {
 
 export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppDemoState>(() => loadPersistedState());
+  // Check results & status live in React state only and are cleared via Manage Data
+  const [checkProgress, setCheckProgress] = useState<
+    Record<string, Record<CheckType, CheckStatus>>
+  >({});
+  const [focusCheckResults, setFocusCheckResults] = useState<Record<string, FocusCheckResult>>({});
+  const [numberCheckResults, setNumberCheckResults] = useState<Record<string, NumberCheckResult>>(
+    {}
+  );
+  const [readingCheckResults, setReadingCheckResults] = useState<
+    Record<string, ReadingCheckResult>
+  >({});
+  const [writingCheckResults, setWritingCheckResults] = useState<
+    Record<string, WritingCheckResult>
+  >({});
+
   const [route, setRoute] = useState<AppRoute>('landing');
   const [activeRole, setActiveRole] = useState<UserRole>('school');
   const [activeStudentId, setActiveStudentId] = useState<string>('ST001');
   const [geminiConfigured, setGeminiConfigured] = useState<boolean>(false);
+  const [consentAccepted, setConsentAccepted] = useState<boolean>(false);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
+  const [requestedWorld, setRequestedWorld] = useState<CheckType | null>(null);
+  const [systemReducedMotion, setSystemReducedMotion] = useState<boolean>(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
   const [accessibilityPrefs, setAccessibilityPrefs] = useState<StudentAccessibilityPrefs>({
     readingFriendly: false,
     reducedMotion: false,
     paperTint: 'ivory',
   });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (e: MediaQueryListEvent) => setSystemReducedMotion(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     try {
@@ -135,7 +202,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
 
       setState((prev) => {
         const student = prev.students.find((s) => s.id === studentId);
-        const studentName = student?.name ?? 'Demo Student';
+        const studentName = student?.name ?? 'Student';
 
         const newActivity: DailyActivity = {
           id: actId,
@@ -242,7 +309,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
               type: 'activity' as const,
               title: `Student Reflection on ${target?.activityTitle ?? 'Activity'}`,
               description: `${feelingTag ? `[${feelingTag}] ` : ''}"${feedback}"`,
-              actor: student?.name ?? 'Demo Student',
+              actor: student?.name ?? 'Student',
             },
             ...prev.timeline,
           ],
@@ -357,15 +424,193 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const getStudentChecks = useCallback(
+    (studentId: string): Record<CheckType, CheckStatus> => {
+      return {
+        ...DEFAULT_CHECK_MAP,
+        ...(checkProgress[studentId] ?? {}),
+      };
+    },
+    [checkProgress]
+  );
+
+  const updateCheckStatus = useCallback(
+    (studentId: string, checkType: CheckType, status: CheckStatus) => {
+      setCheckProgress((prev) => ({
+        ...prev,
+        [studentId]: {
+          ...DEFAULT_CHECK_MAP,
+          ...(prev[studentId] ?? {}),
+          [checkType]: status,
+        },
+      }));
+    },
+    []
+  );
+
+  const saveFocusQuestionnaire = useCallback(
+    (studentId: string, result: FocusQuestionnaireResult) => {
+      setFocusCheckResults((prev) => {
+        const existing = prev[studentId] ?? {};
+        const nextEntry: FocusCheckResult = {
+          ...existing,
+          questionnaire: result,
+        };
+        const status: CheckStatus = nextEntry.starMoonGame ? 'Done' : 'In progress';
+        setCheckProgress((cp) => ({
+          ...cp,
+          [studentId]: {
+            ...DEFAULT_CHECK_MAP,
+            ...(cp[studentId] ?? {}),
+            focus: status,
+          },
+        }));
+        return {
+          ...prev,
+          [studentId]: nextEntry,
+        };
+      });
+    },
+    []
+  );
+
+  const saveStarMoonResult = useCallback((studentId: string, result: StarMoonGameResult) => {
+    setFocusCheckResults((prev) => {
+      const existing = prev[studentId] ?? {};
+      const nextEntry: FocusCheckResult = {
+        ...existing,
+        starMoonGame: result,
+      };
+      setCheckProgress((cp) => ({
+        ...cp,
+        [studentId]: {
+          ...DEFAULT_CHECK_MAP,
+          ...(cp[studentId] ?? {}),
+          focus: 'Done',
+        },
+      }));
+      return {
+        ...prev,
+        [studentId]: nextEntry,
+      };
+    });
+  }, []);
+
+  const saveNumberTaskResult = useCallback((studentId: string, task: NumberTaskMetrics) => {
+    setNumberCheckResults((prev) => {
+      const existing = prev[studentId] ?? {};
+      const nextEntry: NumberCheckResult = {
+        ...existing,
+        [task.taskId]: task,
+      };
+      const allThreeDone = Boolean(nextEntry.dots && nextEntry.numbers && nextEntry.sums);
+      setCheckProgress((cp) => ({
+        ...cp,
+        [studentId]: {
+          ...DEFAULT_CHECK_MAP,
+          ...(cp[studentId] ?? {}),
+          number: allThreeDone ? 'Done' : 'In progress',
+        },
+      }));
+      return {
+        ...prev,
+        [studentId]: nextEntry,
+      };
+    });
+  }, []);
+
+  const saveReadingGameResult = useCallback((studentId: string, game: ReadingGameMetrics) => {
+    setReadingCheckResults((prev) => {
+      const existing = prev[studentId] ?? { language: game.language };
+      const nextEntry: ReadingCheckResult = {
+        ...existing,
+        language: game.language,
+        [game.gameId]: game,
+      };
+      const allFiveDone = Boolean(
+        nextEntry.sound &&
+          nextEntry['letter-sound'] &&
+          nextEntry.nonword &&
+          nextEntry.spelling &&
+          nextEntry.memory
+      );
+      setCheckProgress((cp) => ({
+        ...cp,
+        [studentId]: {
+          ...DEFAULT_CHECK_MAP,
+          ...(cp[studentId] ?? {}),
+          reading: allFiveDone ? 'Done' : 'In progress',
+        },
+      }));
+      return {
+        ...prev,
+        [studentId]: nextEntry,
+      };
+    });
+  }, []);
+
+  const saveWritingCheckResult = useCallback((studentId: string, result: WritingCheckResult) => {
+    setWritingCheckResults((prev) => ({
+      ...prev,
+      [studentId]: result,
+    }));
+    setCheckProgress((cp) => ({
+      ...cp,
+      [studentId]: {
+        ...DEFAULT_CHECK_MAP,
+        ...(cp[studentId] ?? {}),
+        writing: 'Done',
+      },
+    }));
+  }, []);
+
+  const clearStudentCheckData = useCallback((studentId: string) => {
+    setCheckProgress((prev) => {
+      const next = { ...prev };
+      delete next[studentId];
+      return next;
+    });
+    setFocusCheckResults((prev) => {
+      const next = { ...prev };
+      delete next[studentId];
+      return next;
+    });
+    setNumberCheckResults((prev) => {
+      const next = { ...prev };
+      delete next[studentId];
+      return next;
+    });
+    setReadingCheckResults((prev) => {
+      const next = { ...prev };
+      delete next[studentId];
+      return next;
+    });
+    setWritingCheckResults((prev) => {
+      const next = { ...prev };
+      delete next[studentId];
+      return next;
+    });
+  }, []);
+
   const resetDemoData = useCallback(() => {
     const fresh = createInitialDemoState();
     setState(fresh);
+    setCheckProgress({});
+    setFocusCheckResults({});
+    setNumberCheckResults({});
+    setReadingCheckResults({});
+    setWritingCheckResults({});
+    setConsentAccepted(false);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+      localStorage.removeItem('neurolearning_3da_demo_v1');
+      localStorage.removeItem('neurolearning_3da_checks_v1');
     } catch {
       // ignore
     }
   }, []);
+
+  const prefersReducedMotion = systemReducedMotion || accessibilityPrefs.reducedMotion;
 
   return (
     <AppDataContext.Provider
@@ -387,6 +632,26 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         updateSupportPlan,
         saveWritingArtifact,
         resetDemoData,
+        checkProgress,
+        getStudentChecks,
+        updateCheckStatus,
+        focusCheckResults,
+        numberCheckResults,
+        readingCheckResults,
+        writingCheckResults,
+        saveFocusQuestionnaire,
+        saveStarMoonResult,
+        saveNumberTaskResult,
+        saveReadingGameResult,
+        saveWritingCheckResult,
+        clearStudentCheckData,
+        consentAccepted,
+        setConsentAccepted,
+        soundEnabled,
+        setSoundEnabled,
+        requestedWorld,
+        setRequestedWorld,
+        prefersReducedMotion,
       }}
     >
       {children}
@@ -399,3 +664,4 @@ export function useAppData() {
   if (!ctx) throw new Error('useAppData must be used inside AppDataProvider');
   return ctx;
 }
+

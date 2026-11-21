@@ -51,7 +51,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
 
   return (
     <div
-      className={`min-h-screen bg-[#FAF9F6] text-slate-900 flex ${
+      className={`min-h-screen bg-[#F8FAFC] text-slate-900 flex ${
         accessibilityPrefs.reducedMotion ? 'reduced-motion' : ''
       }`}
     >
@@ -61,11 +61,14 @@ export const PortalShell: React.FC<PortalShellProps> = ({
           <button
             type="button"
             onClick={() => setRoute('landing')}
-            className="font-display text-lg font-bold tracking-tight text-slate-900 hover:text-indigo-700 transition-colors text-left cursor-pointer"
+            className="inline-flex items-center gap-2 font-display text-lg font-bold tracking-tight text-[#0B1D3A] hover:text-sky-700 transition-colors text-left cursor-pointer"
           >
-            3DA NeuroLearning
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#0B1D3A] text-[10px] font-extrabold text-[#FDE047]">
+              3DA
+            </span>
+            <span>3DA NeuroLearning</span>
           </button>
-          <p className="mt-0.5 text-xs text-slate-500">{roleLabel}</p>
+          <p className="mt-1 text-xs text-slate-500">{roleLabel}</p>
         </div>
 
         <nav aria-label="Portal navigation" className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -78,8 +81,8 @@ export const PortalShell: React.FC<PortalShellProps> = ({
                 onClick={() => onSelectNav(item.id)}
                 className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
                   active
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-[#0B1D3A] text-white'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-[#0B1D3A]'
                 }`}
               >
                 {item.icon}
@@ -91,9 +94,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
 
         <div className="p-4 border-t border-slate-100 space-y-3">
           <div>
-            <p className="text-[11px] font-medium text-slate-500 mb-1.5">
-              Explore demo as...
-            </p>
+            <p className="text-[11px] font-medium text-slate-500 mb-1.5">Switch view</p>
             <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
               {(['school', 'parent', 'student'] as UserRole[]).map((role) => (
                 <button
@@ -102,7 +103,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
                   onClick={() => handleSwitchRole(role)}
                   className={`rounded-md py-1.5 text-xs font-semibold capitalize transition-colors cursor-pointer ${
                     activeRole === role
-                      ? 'bg-white text-indigo-700 shadow-xs'
+                      ? 'bg-[#0B1D3A] text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -119,7 +120,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
               className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              {resetConfirmed ? 'Reset done' : 'Reset demo data'}
+              {resetConfirmed ? 'Data cleared' : 'Manage Data'}
             </button>
             <button
               type="button"
@@ -143,7 +144,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
           />
           <div className="relative z-10 w-72 max-w-[85vw] bg-white h-full flex flex-col border-r border-slate-200">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <span className="font-display text-lg font-bold text-slate-900">
+              <span className="font-display text-lg font-bold text-[#0B1D3A]">
                 3DA NeuroLearning
               </span>
               <button
@@ -168,7 +169,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
                     }}
                     className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer ${
                       active
-                        ? 'bg-indigo-50 text-indigo-700'
+                        ? 'bg-[#0B1D3A] text-white'
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -179,6 +180,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
               })}
             </nav>
             <div className="p-4 border-t border-slate-100 space-y-3">
+              <p className="text-[11px] font-medium text-slate-500">Switch view</p>
               <div className="grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
                 {(['school', 'parent', 'student'] as UserRole[]).map((role) => (
                   <button
@@ -189,7 +191,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
                       setSidebarOpen(false);
                     }}
                     className={`rounded-md py-1.5 text-xs font-semibold capitalize cursor-pointer ${
-                      activeRole === role ? 'bg-white text-indigo-700' : 'text-slate-600'
+                      activeRole === role ? 'bg-[#0B1D3A] text-white' : 'text-slate-600'
                     }`}
                   >
                     {role}
@@ -203,14 +205,14 @@ export const PortalShell: React.FC<PortalShellProps> = ({
                   className="inline-flex items-center gap-1.5 text-slate-600 cursor-pointer"
                 >
                   <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                  Reset demo data
+                  {resetConfirmed ? 'Data cleared' : 'Manage Data'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setRoute('landing')}
-                  className="text-indigo-700 font-medium cursor-pointer"
+                  className="text-[#0B1D3A] font-semibold cursor-pointer"
                 >
-                  Landing Page
+                  Home
                 </button>
               </div>
             </div>
@@ -232,10 +234,10 @@ export const PortalShell: React.FC<PortalShellProps> = ({
                 <Menu className="h-4 w-4" />
               </button>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900 truncate">{breadcrumb}</p>
+                <p className="text-sm font-semibold text-[#0B1D3A] truncate">{breadcrumb}</p>
                 <p className="text-xs text-slate-500 truncate">
-                  Demo data — fictional · Educational support only ·{' '}
-                  {geminiConfigured ? 'Gemini AI connected' : 'Simulated AI demo mode'}
+                  Educational learning workspace ·{' '}
+                  {geminiConfigured ? 'Gemini AI connected' : 'Local support assistant ready'}
                 </p>
               </div>
             </div>
@@ -250,7 +252,7 @@ export const PortalShell: React.FC<PortalShellProps> = ({
                     onClick={() => handleSwitchRole(role)}
                     className={`rounded-md px-2.5 py-1 text-xs font-semibold capitalize transition-colors cursor-pointer whitespace-nowrap ${
                       activeRole === role
-                        ? 'bg-white text-indigo-700 shadow-xs'
+                        ? 'bg-[#0B1D3A] text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >

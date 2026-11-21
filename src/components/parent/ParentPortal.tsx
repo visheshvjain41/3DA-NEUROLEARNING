@@ -8,6 +8,7 @@ import {
   MessageSquareHeart,
   RotateCcw,
   Settings,
+  Sparkles,
   TrendingUp,
 } from 'lucide-react';
 import {
@@ -23,6 +24,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useAppData } from '../../context/AppDataContext';
+import { CheckHub } from '../check/CheckHub';
 import { PortalShell, type NavItem } from '../PortalShell';
 import { ParentCounselorHub } from './ParentCounselorHub';
 
@@ -32,7 +34,8 @@ type ParentSection =
   | 'daily'
   | 'extra-miles'
   | 'hub'
-  | 'settings';
+  | 'settings'
+  | 'check';
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4 shrink-0" /> },
@@ -41,6 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'extra-miles', label: 'Extra Miles', icon: <Award className="h-4 w-4 shrink-0" /> },
   { id: 'hub', label: 'AI & Counselor Hub', icon: <MessageSquareHeart className="h-4 w-4 shrink-0" /> },
   { id: 'settings', label: 'Settings', icon: <Settings className="h-4 w-4 shrink-0" /> },
+  { id: 'check', label: "Let's Check", icon: <Sparkles className="h-4 w-4 shrink-0 text-amber-600" /> },
 ];
 
 const MODULE_COLORS: Record<string, string> = {
@@ -113,7 +117,7 @@ export const ParentPortal: React.FC = () => {
 
   const studentSelector = (
     <select
-      aria-label="Switch demo child profile"
+      aria-label="Switch child profile"
       value={activeStudentId}
       onChange={(e) => setActiveStudentId(e.target.value)}
       className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 max-w-[200px] truncate"
@@ -178,7 +182,7 @@ export const ParentPortal: React.FC = () => {
               <p className="mt-1 text-xs text-slate-500">Celebrated at your child’s pace</p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-white p-5">
-              <p className="text-xs font-medium text-slate-500">Calm Practice Minutes</p>
+              <p className="text-xs font-medium text-slate-500">Focused Practice Minutes</p>
               <p className="mt-2 font-mono text-3xl font-semibold text-indigo-700 tabular-nums">
                 {totalMinutes}m
               </p>
@@ -272,7 +276,7 @@ export const ParentPortal: React.FC = () => {
               <h3 className="font-display text-base font-semibold text-slate-900 mb-1">
                 Minutes Spent Across the Month
               </h3>
-              <p className="text-xs text-slate-500 mb-4">Calm practice sessions (demo data)</p>
+              <p className="text-xs text-slate-500 mb-4">Practice sessions over the last 30 days</p>
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={monthlyTrendData} margin={{ left: -16, right: 12, top: 8 }}>
@@ -453,7 +457,7 @@ export const ParentPortal: React.FC = () => {
               Extra Miles &amp; Effort Celebrations
             </h1>
             <p className="text-sm text-slate-600 mt-1">
-              Honoring curiosity, calm resets, and trying new strategies—without punitive streaks
+              Honoring curiosity, steady resets, and trying new strategies—without punitive streaks
               or comparisons.
             </p>
           </div>
@@ -506,11 +510,11 @@ export const ParentPortal: React.FC = () => {
       {section === 'settings' && (
         <div className="max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 space-y-6">
           <div>
-            <h1 className="font-display text-2xl font-bold text-slate-900">
-              Parent Demo Settings
+            <h1 className="font-display text-2xl font-bold text-[#0B1D3A]">
+              Parent Workspace Settings
             </h1>
             <p className="text-sm text-slate-600 mt-1">
-              Demo Account: <span className="font-mono">parent@3da.demo</span>
+              Account: <span className="font-mono">parent@3da.org</span>
             </p>
           </div>
 
@@ -519,7 +523,7 @@ export const ParentPortal: React.FC = () => {
               htmlFor="parent-switch-student"
               className="block text-xs font-semibold text-slate-700 mb-1.5"
             >
-              Switch Linked Demo Child (for Hackathon Judging)
+              Active Child Profile
             </label>
             <select
               id="parent-switch-student"
@@ -538,7 +542,7 @@ export const ParentPortal: React.FC = () => {
           <div className="flex items-center justify-between pt-4 border-t border-slate-100">
             <div>
               <p className="text-sm font-semibold text-slate-900">
-                Calm Weekly Progress Summary (Demo Toggle)
+                Weekly Progress Summary
               </p>
               <p className="text-xs text-slate-500">
                 Receives plain-language highlights instead of numeric test alerts.
@@ -561,9 +565,9 @@ export const ParentPortal: React.FC = () => {
 
           <div className="flex items-center justify-between pt-4 border-t border-slate-100">
             <div>
-              <p className="text-sm font-semibold text-slate-900">Reset Demo Data</p>
+              <p className="text-sm font-semibold text-slate-900">Manage Data</p>
               <p className="text-xs text-slate-500">
-                Restore initial fictional activities, reflections, and support plans.
+                Clear session check results and restore default workspace activities and support plans.
               </p>
             </div>
             <button
@@ -572,11 +576,14 @@ export const ParentPortal: React.FC = () => {
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-              Reset Demo Data
+              Manage Data
             </button>
           </div>
         </div>
       )}
+
+      {/* SECTION 7: LET'S CHECK */}
+      {section === 'check' && <CheckHub />}
     </PortalShell>
   );
 };

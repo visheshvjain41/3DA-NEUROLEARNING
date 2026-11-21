@@ -80,7 +80,7 @@ export const SchoolDashboardCharts: React.FC<SchoolDashboardChartsProps> = ({
             Support-Profile Distribution
           </h3>
           <p className="text-xs text-slate-500">
-            12 interactive demo profiles · Non-diagnostic preferences
+            {students.length} student profiles · Learning preferences
           </p>
         </div>
         <div className="h-56 w-full">
@@ -102,7 +102,7 @@ export const SchoolDashboardCharts: React.FC<SchoolDashboardChartsProps> = ({
                   fontSize: '12px',
                 }}
               />
-              <Bar dataKey="count" name="Demo Students" fill="#4F46E5" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="count" name="Students" fill="#0B1D3A" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -115,7 +115,7 @@ export const SchoolDashboardCharts: React.FC<SchoolDashboardChartsProps> = ({
             Recent Activity Trend
           </h3>
           <p className="text-xs text-slate-500">
-            Completed &amp; logged sessions by date (demo data)
+            Completed &amp; logged sessions by date
           </p>
         </div>
         <div className="h-56 w-full">
